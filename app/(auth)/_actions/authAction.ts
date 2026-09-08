@@ -2,6 +2,14 @@
 
 import { cookies } from "next/headers";
 import { registerSchema } from "@/schemas/authSchema";
+import { jwtDecode } from "jwt-decode";
+
+interface DecodedToken {
+  role?: string;
+  userRole?: string;
+  roleName?: string;
+  [key: string]: any;
+}
 
 // ==================== LOGIN ACTION ====================
 export type LoginState = {
@@ -11,8 +19,16 @@ export type LoginState = {
   data?: {
     token?: string;
     accessToken?: string;
+    user?: {
+      role?: string;
+      roleName?: string;
+      [key: string]: any;
+    };
+    role?: string;
+    roleName?: string;
   };
   token?: string;
+  role?: string;
 } | null;
 
 export const loginAction = async (
@@ -34,14 +50,57 @@ export const loginAction = async (
     });
 
     const result = await res.json();
-    const token =
-      result?.data?.token || result?.data?.accessToken || result?.token;
 
-    if (res.ok && result?.success && token) {
+    const token =
+      result?.data?.token ||
+      result?.data?.accessToken ||
+      result?.token ||
+      result?.accessToken;
+
+    let extractedRole: string | undefined = undefined;
+
+    // ১. প্রথমে টোকেন ডিকোড করে রোল বের করার চেষ্টা করা
+    if (token) {
+      try {
+        const decoded = jwtDecode<DecodedToken>(token);
+        extractedRole =
+          decoded?.roleName || decoded?.role || decoded?.userRole;
+      } catch {
+        // Token decode fallback
+      }
+    }
+
+    // ২. যদি টোকেনে না থাকে তবে রেসপন্স অবজেক্ট থেকে নেওয়া
+    if (!extractedRole) {
+      extractedRole =
+        result?.data?.user?.role ||
+        result?.data?.user?.roleName ||
+        result?.user?.role ||
+        result?.user?.roleName ||
+        result?.data?.role ||
+        result?.data?.roleName ||
+        result?.role;
+    }
+
+    const userRole = extractedRole
+      ? String(extractedRole).trim().toUpperCase()
+      : "CUSTOMER";
+
+    if (res.ok && (result?.success || token)) {
       const cookieStore = await cookies();
 
-      cookieStore.set("token", token, {
-        httpOnly: true,
+      if (token) {
+        cookieStore.set("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          maxAge: 60 * 60 * 24,
+          sameSite: "lax",
+          path: "/",
+        });
+      }
+
+      cookieStore.set("user_role", userRole, {
+        httpOnly: false,
         secure: process.env.NODE_ENV === "production",
         maxAge: 60 * 60 * 24,
         sameSite: "lax",
@@ -51,7 +110,8 @@ export const loginAction = async (
       return {
         success: true,
         message: result?.message || "Login successful!",
-        data: result?.data,
+        data: result?.data || result,
+        role: userRole,
       };
     }
 
@@ -88,7 +148,7 @@ export const registerAction = async (
       name: formData.get("name"),
       email: formData.get("email"),
       password: formData.get("password"),
-      role: rawRole.toUpperCase(), // ব্যাকএন্ডের চাহিদামতো সব সময় Uppercase করা হলো
+      role: rawRole.trim().toUpperCase(),
     };
 
     const validatedData = registerSchema.safeParse(rawData);
@@ -131,4 +191,14 @@ export const registerAction = async (
       message: errorMessage,
     };
   }
+};
+
+// ==================== LOGOUT ACTION ====================
+export const logoutAction = async () => {
+  const cookieStore = await cookies();
+
+  cookieStore.delete("token");
+  cookieStore.delete("user_role");
+
+  return { success: true };
 };

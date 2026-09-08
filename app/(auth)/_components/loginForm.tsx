@@ -1,53 +1,75 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import React, { useActionState, useEffect } from "react";
-import { loginAction } from "../_actions/authAction";
-import { toast } from "sonner";
+import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { loginAction, LoginState } from "@/app/(auth)/_actions/authAction";
 
-const LoginForm = () => {
-  const [state, action, pending] = useActionState(loginAction, null);
+export default function LoginForm() {
   const router = useRouter();
+  const [state, formAction, isPending] = useActionState<LoginState, FormData>(
+    loginAction,
+    null
+  );
 
   useEffect(() => {
-    if (!state) return;
+    if (state?.success) {
+      toast.success(state.message || "Login successful!");
 
-    if (state.success) {
-      toast.success(state.message || "Logged in successfully!");
-      // Toast দেখানোর পর ড্যাশবোর্ডে নেভিগেট করা
-      router.push("/dashboard");
+      // LocalStorage-এ ইউজার অবজেক্ট ও রোল সেভ করা
+      if (state.data?.user) {
+        localStorage.setItem("user", JSON.stringify(state.data.user));
+      } else if (state.role) {
+        localStorage.setItem("user", JSON.stringify({ role: state.role }));
+      }
+
+      // Role অনুযায়ী ডায়নামিক রিডাইরেক্ট
+      const role = state.role?.toUpperCase();
+      if (role === "ADMIN") {
+        router.push("/admin-dashboard");
+      } else if (role === "PROVIDER" || role === "AUTHOR") {
+        router.push("/author-dashboard");
+      } else {
+        router.push("/dashboard");
+      }
+
       router.refresh();
-    } else {
-      toast.error(state.message || "Login failed");
+    } else if (state && !state.success) {
+      toast.error(state.message || "Invalid credentials!");
     }
   }, [state, router]);
 
   return (
-    <div>
-      <form action={action} className="space-y-4">
-        <Card className="space-y-4 p-5">
-          <Input
-            name="email"
-            type="email"
-            placeholder="Enter Your Email"
-            required
-          />
-          <Input
-            name="password"
-            type="password"
-            placeholder="Enter Your Password"
-            required
-          />
-          <Button type="submit" disabled={pending} className="w-full">
-            {pending ? "Submitting..." : "Login"}
-          </Button>
-        </Card>
-      </form>
-    </div>
-  );
-};
+    <form action={formAction} className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium">Email</label>
+        <input
+          type="email"
+          name="email"
+          required
+          placeholder="your@email.com"
+          className="w-full rounded-md border p-2.5 text-sm"
+        />
+      </div>
 
-export default LoginForm;
+      <div>
+        <label className="block text-sm font-medium">Password</label>
+        <input
+          type="password"
+          name="password"
+          required
+          placeholder="••••••••"
+          className="w-full rounded-md border p-2.5 text-sm"
+        />
+      </div>
+
+      <button
+        type="submit"
+        disabled={isPending}
+        className="w-full rounded-md bg-primary p-2.5 text-white font-semibold transition hover:opacity-90 disabled:opacity-50"
+      >
+        {isPending ? "Logging in..." : "Login"}
+      </button>
+    </form>
+  );
+}
