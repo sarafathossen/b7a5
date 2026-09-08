@@ -1,18 +1,92 @@
- import Image from "next/image";
-import { getSingleGear } from "../../_actions/gearAction";
-import { notFound } from "next/navigation";
+"use client";
 
-export default async function GearDetailsPage({
+import { useEffect, useState, use } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { getSingleGear, createRentalOrder } from "../../_actions/gearAction";
+
+export default function GearDetailsPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const resolvedParams = await params;
-  const gear = await getSingleGear(resolvedParams.id);
+  const resolvedParams = use(params);
+  const router = useRouter();
+
+  const [gear, setGear] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    async function loadData() {
+      const data = await getSingleGear(resolvedParams.id);
+      setGear(data);
+      setLoading(false);
+    }
+    loadData();
+  }, [resolvedParams.id]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <p className="text-muted-foreground">Loading gear details...</p>
+      </div>
+    );
+  }
 
   if (!gear) {
-    notFound();
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h2 className="text-xl font-bold">Gear not found!</h2>
+      </div>
+    );
   }
+
+  // দিন হিসাব করে মোট প্রাইজ ক্যালকুলেট করা
+  const calculateTotal = () => {
+    if (!startDate || !endDate) return 0;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = end.getTime() - start.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays * gear.pricePerDay : 0;
+  };
+
+  const totalPrice = calculateTotal();
+
+  const handleRent = async () => {
+    setErrorMessage("");
+
+    if (!startDate || !endDate) {
+      setErrorMessage("Please select both start and end dates.");
+      return;
+    }
+
+    if (totalPrice <= 0) {
+      setErrorMessage("End date must be after start date.");
+      return;
+    }
+
+    setSubmitting(true);
+
+    const res = await createRentalOrder({
+      gearId: gear._id || gear.id,
+      startDate,
+      endDate,
+      totalPrice,
+    });
+
+    setSubmitting(false);
+
+    if (res.success) {
+      router.push("/dashboard/customer/orders");
+    } else {
+      setErrorMessage(res.message);
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -29,7 +103,7 @@ export default async function GearDetailsPage({
         <div className="flex flex-col justify-between space-y-6">
           <div>
             <span className="text-xs font-semibold uppercase px-2.5 py-1 bg-primary/10 text-primary rounded-full">
-              {gear.category}
+              {gear.category?.name || gear.category || "Equipment"}
             </span>
             <h1 className="text-3xl font-bold mt-3">{gear.name}</h1>
             <p className="text-muted-foreground mt-2">{gear.description}</p>
@@ -45,19 +119,45 @@ export default async function GearDetailsPage({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">Start Date</label>
-                <input type="date" className="w-full border rounded-lg p-2 text-sm bg-background" />
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full border rounded-lg p-2 text-sm bg-background"
+                />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground block mb-1">End Date</label>
-                <input type="date" className="w-full border rounded-lg p-2 text-sm bg-background" />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full border rounded-lg p-2 text-sm bg-background"
+                />
               </div>
             </div>
 
+            {totalPrice > 0 && (
+              <div className="p-3 bg-muted/50 rounded-lg flex justify-between items-center text-sm font-medium">
+                <span>Total Estimated Cost:</span>
+                <span className="text-lg font-bold text-primary">${totalPrice}</span>
+              </div>
+            )}
+
+            {errorMessage && (
+              <p className="text-xs text-red-500 font-medium">{errorMessage}</p>
+            )}
+
             <button
-              disabled={!gear.isAvailable}
+              onClick={handleRent}
+              disabled={!gear.isAvailable || submitting}
               className="w-full py-3 bg-primary text-primary-foreground font-medium rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity"
             >
-              {gear.isAvailable ? "Rent Now" : "Currently Unavailable"}
+              {submitting
+                ? "Processing..."
+                : gear.isAvailable
+                ? "Rent Now"
+                : "Currently Unavailable"}
             </button>
           </div>
         </div>

@@ -1,95 +1,70 @@
-import { cookies } from "next/headers";
-import Image from "next/image";
+"use client";
 
-async function getMyGear() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+import { useEffect, useState } from "react";
+import { getCustomerRentals, createPaymentSession } from "../../_actions/dashboardAction";
 
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/gear/my-gear`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        cache: "no-store",
-      }
-    );
+export default function CustomerMyGearPage() {
+  const [rentals, setRentals] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    if (!res.ok) return [];
-    const result = await res.json();
-    return result.data || [];
-  } catch {
-    return [];
-  }
-}
+  const loadData = async () => {
+    const data = await getCustomerRentals();
+    setRentals(data);
+    setLoading(false);
+  };
 
-export default async function MyGearPage() {
-  const gears = await getMyGear();
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handlePayment = async (orderId: string) => {
+    const res = await createPaymentSession(orderId, "SSLCommerz");
+    if (res?.paymentUrl) {
+      window.location.href = res.paymentUrl;
+    } else {
+      alert(res?.message || "Payment initiation failed");
+    }
+  };
+
+  if (loading) return <div className="p-6">Loading rental orders...</div>;
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Gear</h1>
-          <p className="text-muted-foreground">
-            Manage your listed gears, rental items, and listings.
-          </p>
-        </div>
-      </div>
+      <h1 className="text-2xl font-bold">My Rental Orders</h1>
 
-      {gears.length === 0 ? (
-        <div className="border rounded-xl p-12 text-center bg-card text-muted-foreground">
-          <p className="text-lg font-medium">No gear items found.</p>
-          <p className="text-sm">You haven&apos;t listed or rented any gear yet.</p>
-        </div>
-      ) : (
-        <div className="border rounded-xl overflow-hidden bg-card">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-muted text-muted-foreground uppercase text-xs">
-                <tr>
-                  <th className="px-6 py-4">Gear Name</th>
-                  <th className="px-6 py-4">Brand</th>
-                  <th className="px-6 py-4">Price / Day</th>
-                  <th className="px-6 py-4">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {gears.map((item: any) => (
-                  <tr key={item.id} className="hover:bg-muted/50 transition-colors">
-                    <td className="px-6 py-4 font-medium flex items-center gap-3">
-                      {item.image && (
-                        <Image
-                          src={item.image}
-                          alt={item.name || "Gear"}
-                          width={40}
-                          height={40}
-                          className="w-10 h-10 rounded-md object-cover"
-                        />
-                      )}
-                      <span>{item.name}</span>
-                    </td>
-                    <td className="px-6 py-4">{item.brand || "N/A"}</td>
-                    <td className="px-6 py-4 font-semibold">${item.pricePerDay}</td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          item.isAvailable
-                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                            : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
-                        }`}
-                      >
-                        {item.isAvailable ? "Available" : "Booked"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <div className="border rounded-xl overflow-hidden bg-card">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-muted border-b">
+            <tr>
+              <th className="p-3">Order ID</th>
+              <th className="p-3">Gear Name</th>
+              <th className="p-3">Total Cost</th>
+              <th className="p-3">Status</th>
+              <th className="p-3 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {rentals.map((order) => (
+              <tr key={order._id || order.id}>
+                <td className="p-3 font-mono">{order._id || order.id}</td>
+                <td className="p-3 font-medium">{order.gearId?.name || "Equipment"}</td>
+                <td className="p-3 font-bold">${order.totalPrice}</td>
+                <td className="p-3 font-semibold">{order.status}</td>
+                <td className="p-3 text-right">
+                  {order.status === "CONFIRMED" && (
+                    <button
+                      onClick={() => handlePayment(order._id || order.id)}
+                      className="px-3 py-1 bg-primary text-primary-foreground rounded text-xs"
+                    >
+                      Pay Now
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

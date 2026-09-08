@@ -1,51 +1,68 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Package, ShoppingCart, ShieldAlert } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { getAllUsers, toggleUserStatus } from "../_actions/dashboardAction";
 
 export default function AdminDashboardPage() {
+  const [users, setUsers] = useState<any[]>([]);
+
+  const loadData = async () => {
+    const data = await getAllUsers();
+    setUsers(data);
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleToggleBlock = async (id: string, currentActiveStatus: boolean) => {
+    const res = await toggleUserStatus(id, !currentActiveStatus);
+    if (res.success) {
+      loadData();
+    } else {
+      alert(res.message || "Action failed");
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-red-600 flex items-center gap-2">
-          <ShieldAlert className="h-8 w-8" /> Admin Panel Overview
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Global platform management and user analytics.
-        </p>
-      </div>
+    <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-bold">Admin Control Center</h1>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Platform Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">128</div>
-            <p className="text-xs text-muted-foreground">Active Customers & Providers</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Gear Items</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">342</div>
-            <p className="text-xs text-muted-foreground">Across all categories</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">All Rental Orders</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">89</div>
-            <p className="text-xs text-muted-foreground">Lifetime successful rentals</p>
-          </CardContent>
-        </Card>
+      <div className="border rounded-xl overflow-hidden bg-card">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-muted border-b">
+            <tr>
+              <th className="p-3">User</th>
+              <th className="p-3">Role</th>
+              <th className="p-3">Status</th>
+              <th className="p-3 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {users.map((u) => (
+              <tr key={u._id || u.id}>
+                <td className="p-3">
+                  <p className="font-medium">{u.name}</p>
+                  <p className="text-xs text-muted-foreground">{u.email}</p>
+                </td>
+                <td className="p-3 uppercase text-xs font-bold">{u.role}</td>
+                <td className="p-3 font-semibold">
+                  {u.isActive !== false ? "Active" : "Blocked"}
+                </td>
+                <td className="p-3 text-right">
+                  <button
+                    onClick={() => handleToggleBlock(u._id || u.id, u.isActive !== false)}
+                    className={`px-3 py-1 text-white rounded text-xs ${
+                      u.isActive !== false ? "bg-red-600" : "bg-green-600"
+                    }`}
+                  >
+                    {u.isActive !== false ? "Block" : "Unblock"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

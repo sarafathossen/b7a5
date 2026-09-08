@@ -30,28 +30,29 @@ export default function Sidebar({ userRole = "CUSTOMER" }: SidebarProps) {
     router.refresh();
   };
 
-  // রোল অনুযায়ী ডায়নামিক মেনু
+  // রোল অনুযায়ী ডায়নামিক মেনু ও পাথ
   const getMenuItems = () => {
     switch (role) {
       case "ADMIN":
         return [
-          { name: "Overview", href: "/dashboard/admin", icon: LayoutDashboard },
-          { name: "User Management", href: "/dashboard/admin/users", icon: Users },
-          { name: "Content Moderation", href: "/dashboard/admin/moderation", icon: ShieldAlert },
+          { name: "Overview", href: "/admin-dashboard", icon: LayoutDashboard },
+          { name: "User Management", href: "/admin-dashboard/users", icon: Users },
+          { name: "Content Moderation", href: "/admin-dashboard/moderation", icon: ShieldAlert },
         ];
       case "PROVIDER":
+      case "AUTHOR":
         return [
-          { name: "Overview", href: "/dashboard/provider", icon: LayoutDashboard },
-          { name: "My Inventory", href: "/dashboard/provider/gear", icon: Package },
-          { name: "Add New Gear", href: "/dashboard/provider/gear/new", icon: PlusCircle },
-          { name: "Incoming Orders", href: "/dashboard/provider/orders", icon: ShoppingBag },
+          { name: "Overview", href: "/provider-dashboard", icon: LayoutDashboard },
+          { name: "My Inventory", href: "/provider-dashboard/gear", icon: Package },
+          { name: "Add New Gear", href: "/provider-dashboard/gear/new", icon: PlusCircle },
+          { name: "Incoming Orders", href: "/provider-dashboard/orders", icon: ShoppingBag },
         ];
       case "CUSTOMER":
       default:
         return [
-          { name: "Overview", href: "/dashboard/customer", icon: LayoutDashboard },
-          { name: "My Rentals", href: "/dashboard/customer/orders", icon: ShoppingBag },
-          { name: "Profile", href: "/dashboard/customer/profile", icon: User },
+          { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
+          { name: "My Rentals", href: "/dashboard/my-gear", icon: ShoppingBag },
+          { name: "Profile", href: "/dashboard/profile", icon: User },
         ];
     }
   };
