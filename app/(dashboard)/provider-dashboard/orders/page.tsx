@@ -1,80 +1,90 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getProviderOrders, updateOrderStatus } from "../../_actions/dashboardAction";
+import { getProviderOrdersAction, updateOrderStatusAction } from "../action";
 
-export default function ProviderOrdersPage() {
+export default function IncomingOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const loadOrders = async () => {
-    const data = await getProviderOrders();
-    setOrders(data);
+  const fetchOrders = async () => {
+    setLoading(true);
+    const res = await getProviderOrdersAction();
+    if (res.success) {
+      setOrders(res.data);
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
-    loadOrders();
+    fetchOrders();
   }, []);
 
-  const handleStatusChange = async (id: string, status: string) => {
-    const res = await updateOrderStatus(id, status);
+  const handleStatusChange = async (orderId: string, status: string) => {
+    const res = await updateOrderStatusAction(orderId, status);
     if (res.success) {
-      loadOrders();
+      alert("Order status updated");
+      fetchOrders();
     } else {
-      alert(res.message || "Failed to update order status");
+      alert(res.message);
     }
   };
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Manage Rental Requests</h1>
-
-      <div className="border rounded-xl overflow-hidden bg-card">
-        <table className="w-full text-sm text-left">
-          <thead className="bg-muted border-b">
-            <tr>
-              <th className="p-3">Order ID</th>
-              <th className="p-3">Amount</th>
-              <th className="p-3">Status</th>
-              <th className="p-3 text-right">Update Flow</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {orders.map((o) => (
-              <tr key={o._id || o.id}>
-                <td className="p-3 font-mono">{o._id || o.id}</td>
-                <td className="p-3 font-bold">${o.totalPrice}</td>
-                <td className="p-3">{o.status}</td>
-                <td className="p-3 text-right space-x-2">
-                  {o.status === "PLACED" && (
-                    <button
-                      onClick={() => handleStatusChange(o._id || o.id, "CONFIRMED")}
-                      className="px-3 py-1 bg-green-600 text-white rounded text-xs"
-                    >
-                      Confirm
-                    </button>
-                  )}
-                  {o.status === "PAID" && (
-                    <button
-                      onClick={() => handleStatusChange(o._id || o.id, "PICKED_UP")}
-                      className="px-3 py-1 bg-purple-600 text-white rounded text-xs"
-                    >
-                      Mark Picked Up
-                    </button>
-                  )}
-                  {o.status === "PICKED_UP" && (
-                    <button
-                      onClick={() => handleStatusChange(o._id || o.id, "RETURNED")}
-                      className="px-3 py-1 bg-gray-700 text-white rounded text-xs"
-                    >
-                      Mark Returned
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Incoming Rental Orders</h1>
+        <p className="text-sm text-muted-foreground">Manage incoming rental order requests for your gear.</p>
       </div>
+
+      {loading ? (
+        <div className="p-8 text-center text-muted-foreground">Loading orders...</div>
+      ) : orders.length === 0 ? (
+        <div className="p-12 text-center border rounded-xl bg-card">
+          <p className="text-muted-foreground">No incoming orders found.</p>
+        </div>
+      ) : (
+        <div className="border rounded-xl bg-card overflow-hidden">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-accent/50 border-b text-muted-foreground">
+              <tr>
+                <th className="p-4">Order ID</th>
+                <th className="p-4">Gear ID</th>
+                <th className="p-4">Customer</th>
+                <th className="p-4">Status</th>
+                <th className="p-4 text-right">Update Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {orders.map((order) => (
+                <tr key={order._id || order.id} className="hover:bg-accent/20">
+                  <td className="p-4 font-mono text-xs">{order._id || order.id}</td>
+                  <td className="p-4 font-mono text-xs">{order.gearId || order.gear?._id}</td>
+                  <td className="p-4 font-medium">{order.customer?.name || order.customer}</td>
+                  <td className="p-4">
+                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-accent">
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="p-4 text-right">
+                    <select
+                      value={order.status}
+                      onChange={(e) => handleStatusChange(order._id || order.id, e.target.value)}
+                      className="p-1.5 border rounded-lg text-xs bg-background cursor-pointer"
+                    >
+                      <option value="PLACED">PLACED</option>
+                      <option value="CONFIRMED">CONFIRMED</option>
+                      <option value="PICKED_UP">PICKED_UP</option>
+                      <option value="RETURNED">RETURNED</option>
+                      <option value="CANCELLED">CANCELLED</option>
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

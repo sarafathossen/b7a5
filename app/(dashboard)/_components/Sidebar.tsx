@@ -19,7 +19,7 @@ interface SidebarProps {
   userRole?: string;
 }
 
-export default function Sidebar({ userRole = "CUSTOMER" }: SidebarProps) {
+export default function Sidebar({ userRole = "PROVIDER" }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const role = userRole.toUpperCase();
@@ -30,7 +30,6 @@ export default function Sidebar({ userRole = "CUSTOMER" }: SidebarProps) {
     router.refresh();
   };
 
-  // রোল অনুযায়ী ডায়নামিক মেনু ও পাথ
   const getMenuItems = () => {
     switch (role) {
       case "ADMIN":
@@ -72,7 +71,11 @@ export default function Sidebar({ userRole = "CUSTOMER" }: SidebarProps) {
         <nav className="space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href;
+            const isActive =
+              item.href === "/provider-dashboard"
+                ? pathname === item.href
+                : pathname.startsWith(item.href);
+
             return (
               <Link
                 key={item.href}

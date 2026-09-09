@@ -1,41 +1,39 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+"use client";
 
-export default function ProfilePage() {
+import { User, Mail, Shield } from "lucide-react";
+
+export default function CustomerProfilePage() {
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="p-6 max-w-xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
-        <p className="text-sm text-muted-foreground">
-          Manage your personal information and contact details
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">Account Profile</h1>
+        <p className="text-sm text-muted-foreground">Your personal account details.</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="name">Full Name</Label>
-            <Input id="name" defaultValue="Sarafat Hossen" />
+      <div className="border rounded-xl bg-card p-6 space-y-4">
+        <div className="flex items-center gap-4 pb-4 border-b">
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary text-2xl font-bold">
+            C
           </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email Address</Label>
-            <Input id="email" type="email" defaultValue="sarafat@gmail.com" disabled />
+          <div>
+            <h3 className="font-bold text-lg">Customer User</h3>
+            <p className="text-xs text-muted-foreground uppercase font-semibold">Role: Customer</p>
           </div>
+        </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="phone">Phone Number</Label>
-            <Input id="phone" placeholder="+880 1700000000" />
+        <div className="space-y-3">
+          <div className="flex items-center gap-3 text-sm">
+            <User className="w-4 h-4 text-muted-foreground" />
+            <span className="text-muted-foreground">Account Type:</span>
+            <span className="font-medium">Customer</span>
           </div>
-
-          <Button className="mt-2">Save Changes</Button>
-        </CardContent>
-      </Card>
+          <div className="flex items-center gap-3 text-sm">
+            <Shield className="w-4 h-4 text-muted-foreground" />
+            <span className="text-muted-foreground">Access:</span>
+            <span className="font-medium">Gear Rental & Orders</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

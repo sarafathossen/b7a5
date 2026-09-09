@@ -3,40 +3,29 @@
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 
+const BASE_URL = process.env.BACKEND_API_URL || "http://localhost:5000";
+
 const getAuthToken = async () => {
   const cookieStore = await cookies();
   return cookieStore.get("token")?.value;
 };
 
-// ১. প্রোভাইডারের সব গিয়ার/ইনভেন্টরি পাওয়ার এপিআই
-export async function getProviderGears() {
-  try {
-    const token = await getAuthToken();
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/provider/gears`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: "no-store",
-    });
-    const result = await res.json();
-    return result?.data || [];
-  } catch (error) {
-    console.error("Error fetching gears:", error);
-    return [];
-  }
-}
-
-// ২. নতুন গিয়ার যুক্ত করার এপিআই
+// ১. নতুন Gear যোগ করার অ্যাকশন
 export async function createProviderGear(formData: FormData) {
   try {
     const token = await getAuthToken();
+
+    // এপিআই ডকুমেন্টেশন অনুযায়ী হুবহু JSON পে-লোড
     const gearData = {
-      name: formData.get("name"),
-      category: formData.get("category"),
+      name: formData.get("name")?.toString() || "",
+      description: formData.get("description")?.toString() || "",
       pricePerDay: Number(formData.get("pricePerDay")),
-      description: formData.get("description"),
-      imageUrl: formData.get("imageUrl"),
+      category: formData.get("category")?.toString() || "",
+      brand: formData.get("brand")?.toString() || "",
+      stock: Number(formData.get("stock")),
     };
 
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/provider/gears`, {
+    const res = await fetch(`${BASE_URL}/api/provider/gear`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -45,47 +34,41 @@ export async function createProviderGear(formData: FormData) {
       body: JSON.stringify(gearData),
     });
 
-    const result = await res.json();
+    const result = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      return {
+        success: false,
+        message: result?.message || result?.error || `Error ${res.status}: Request failed`,
+      };
+    }
+
     revalidatePath("/provider-dashboard/gear");
-    return result;
+    return { success: true, data: result };
   } catch (error: any) {
-    return { success: false, message: error.message };
+    return { success: false, message: error?.message || "Failed to submit gear" };
   }
 }
 
-// ৩. প্রোভাইডারের ইনকামিং রেন্টাল অর্ডার পাওয়ার এপিআই
-export async function getProviderOrders() {
+// ২. সকল Gear ফেচ করার অ্যাকশন (বিল্ড এরর সমাধানের জন্য যোগ করা হয়েছে)
+export async function getProviderGears() {
   try {
     const token = await getAuthToken();
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/provider/orders`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: "no-store",
-    });
-    const result = await res.json();
-    return result?.data || [];
-  } catch (error) {
-    console.error("Error fetching provider orders:", error);
-    return [];
-  }
-}
 
-// ৪. অর্ডারের স্ট্যাটাস আপডেট করার এপিআই (CONFIRMED / PICKED_UP / RETURNED)
-export async function updateOrderStatus(orderId: string, status: string) {
-  try {
-    const token = await getAuthToken();
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/provider/orders/${orderId}`, {
-      method: "PATCH",
+    const res = await fetch(`${BASE_URL}/api/provider/gear`, {
+      method: "GET",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ status }),
+      cache: "no-store",
     });
 
+    if (!res.ok) return [];
+
     const result = await res.json();
-    revalidatePath("/provider-dashboard/orders");
-    return result;
-  } catch (error: any) {
-    return { success: false, message: error.message };
+    return result?.data || result || [];
+  } catch (error) {
+    console.error("Error fetching gears:", error);
+    return [];
   }
 }
