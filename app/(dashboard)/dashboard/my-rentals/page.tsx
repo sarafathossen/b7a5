@@ -33,7 +33,42 @@ export default function MyGearRentalsPage() {
     setLoading(false);
   };
 
+  // পেমেন্ট সফল হয়ে ফিরে আসলে ডাটাবেজে সেভ করার জন্য useEffect
   useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const paymentStatus = queryParams.get("payment");
+    const rentalOrderId = queryParams.get("rentalOrderId");
+
+    if (paymentStatus === "success" && rentalOrderId) {
+      // ব্যাকএন্ডের পেমেন্ট ভেরিফাই এবং সেভ করার রাউট কল করা
+      const verifyAndSavePayment = async () => {
+        try {
+          const response = await fetch("http://localhost:5000/api/payment/verify", { // আপনার ব্যাকএন্ড পোর্ট ও রুট অনুযায়ী লিংক দিন
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              // যদি টোকেন প্রয়োজন হয় তবে এখানে অথেন্টিকেশন হেডার দিতে পারেন:
+              // "Authorization": `Bearer ${localStorage.getItem("token")}`
+            },
+            body: JSON.stringify({ rentalOrderId }),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            toast.success("Payment saved successfully in database!");
+            window.history.replaceState({}, document.title, window.location.pathname); // ইউআরএল ক্লিন করার জন্য
+            fetchOrders(); // ডাটা রিফ্রেশ করা
+          } else {
+            toast.error(result.message || "Failed to save payment in DB");
+          }
+        } catch (error) {
+          console.error("Payment verification error:", error);
+        }
+      };
+
+      verifyAndSavePayment();
+    }
+
     fetchOrders();
   }, []);
 
@@ -118,7 +153,13 @@ export default function MyGearRentalsPage() {
               {orders.map((order) => {
                 const id = order._id || order.id;
                 const gearId = order.gearItemId || order.gearId || order.gear?._id || order.gear?.id || null;
-                const isPaid = order.status === "PAID" || order.paymentStatus === "PAID";
+                
+                // ডাটাবেজ থেকে পেমেন্ট বা স্ট্যাটাস PAID চেক করা
+                const hasPaymentInDB = 
+                  (order.payment && order.payment.length > 0) || 
+                  (order.payments && order.payments.length > 0) ||
+                  order.status === "PAID" || 
+                  order.paymentStatus === "PAID";
 
                 return (
                   <tr key={id} className="hover:bg-accent/20">
@@ -127,9 +168,9 @@ export default function MyGearRentalsPage() {
                     <td className="p-4 font-semibold">${order.totalPrice}</td>
                     <td className="p-4">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-semibold uppercase ${
-                        isPaid ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500"
+                        hasPaymentInDB ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500"
                       }`}>
-                        {order.status}
+                        {hasPaymentInDB ? "PAID" : order.status}
                       </span>
                     </td>
                     
@@ -143,9 +184,9 @@ export default function MyGearRentalsPage() {
                       </button>
                     </td>
 
-                    {/* Payment Column */}
+                    {/* Payment Column: পেমেন্ট করা থাকলে Paid এবং না থাকলে Pay Now বাটন দেখাবে */}
                     <td className="p-4">
-                      {!isPaid ? (
+                      {!hasPaymentInDB ? (
                         <button
                           disabled={paymentLoadingId === id}
                           onClick={() => handlePayNow(id)}
@@ -155,7 +196,9 @@ export default function MyGearRentalsPage() {
                           {paymentLoadingId === id ? "Processing..." : "Pay Now"}
                         </button>
                       ) : (
-                        <span className="text-xs text-emerald-600 font-semibold">Paid</span>
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600">
+                          Paid
+                        </span>
                       )}
                     </td>
 

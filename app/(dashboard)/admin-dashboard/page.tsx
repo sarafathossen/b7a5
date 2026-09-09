@@ -1,68 +1,68 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAllUsers, toggleUserStatus } from "../_actions/dashboardAction";
+import { Users, Package, ShoppingCart } from "lucide-react";
+import { getAllUsersAction, getAllAdminGearsAction, getAllAdminRentalsAction } from "./action";
 
-export default function AdminDashboardPage() {
-  const [users, setUsers] = useState<any[]>([]);
-
-  const loadData = async () => {
-    const data = await getAllUsers();
-    setUsers(data);
-  };
+export default function AdminDashboardOverview() {
+  const [stats, setStats] = useState({ users: 0, gears: 0, rentals: 0 });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    async function loadStats() {
+      const [uRes, gRes, rRes] = await Promise.all([
+        getAllUsersAction(),
+        getAllAdminGearsAction(),
+        getAllAdminRentalsAction(),
+      ]);
 
-  const handleToggleBlock = async (id: string, currentActiveStatus: boolean) => {
-    const res = await toggleUserStatus(id, !currentActiveStatus);
-    if (res.success) {
-      loadData();
-    } else {
-      alert(res.message || "Action failed");
+      setStats({
+        users: uRes.data?.length || 0,
+        gears: gRes.data?.length || 0,
+        rentals: rRes.data?.length || 0,
+      });
+      setLoading(false);
     }
-  };
+    loadStats();
+  }, []);
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Admin Control Center</h1>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Admin Overview</h1>
+        <p className="text-sm text-muted-foreground">Manage users, listings, and platform-wide rental orders.</p>
+      </div>
 
-      <div className="border rounded-xl overflow-hidden bg-card">
-        <table className="w-full text-sm text-left">
-          <thead className="bg-muted border-b">
-            <tr>
-              <th className="p-3">User</th>
-              <th className="p-3">Role</th>
-              <th className="p-3">Status</th>
-              <th className="p-3 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {users.map((u) => (
-              <tr key={u._id || u.id}>
-                <td className="p-3">
-                  <p className="font-medium">{u.name}</p>
-                  <p className="text-xs text-muted-foreground">{u.email}</p>
-                </td>
-                <td className="p-3 uppercase text-xs font-bold">{u.role}</td>
-                <td className="p-3 font-semibold">
-                  {u.isActive !== false ? "Active" : "Blocked"}
-                </td>
-                <td className="p-3 text-right">
-                  <button
-                    onClick={() => handleToggleBlock(u._id || u.id, u.isActive !== false)}
-                    className={`px-3 py-1 text-white rounded text-xs ${
-                      u.isActive !== false ? "bg-red-600" : "bg-green-600"
-                    }`}
-                  >
-                    {u.isActive !== false ? "Block" : "Unblock"}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-5 border rounded-xl bg-card flex items-center gap-4">
+          <div className="p-3 bg-blue-500/10 text-blue-500 rounded-lg">
+            <Users className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Total Users</p>
+            <h3 className="text-2xl font-bold">{loading ? "..." : stats.users}</h3>
+          </div>
+        </div>
+
+        <div className="p-5 border rounded-xl bg-card flex items-center gap-4">
+          <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-lg">
+            <Package className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">All Gear Listings</p>
+            <h3 className="text-2xl font-bold">{loading ? "..." : stats.gears}</h3>
+          </div>
+        </div>
+
+        <div className="p-5 border rounded-xl bg-card flex items-center gap-4">
+          <div className="p-3 bg-amber-500/10 text-amber-500 rounded-lg">
+            <ShoppingCart className="w-6 h-6" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">Total Rental Orders</p>
+            <h3 className="text-2xl font-bold">{loading ? "..." : stats.rentals}</h3>
+          </div>
+        </div>
       </div>
     </div>
   );

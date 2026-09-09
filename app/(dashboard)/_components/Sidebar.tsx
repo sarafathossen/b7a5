@@ -9,7 +9,6 @@ import {
   PlusCircle, 
   ShoppingBag, 
   Users, 
-  ShieldAlert, 
   User, 
   Home, 
   LogOut 
@@ -36,7 +35,8 @@ export default function Sidebar({ userRole = "PROVIDER" }: SidebarProps) {
         return [
           { name: "Overview", href: "/admin-dashboard", icon: LayoutDashboard },
           { name: "User Management", href: "/admin-dashboard/users", icon: Users },
-          { name: "Content Moderation", href: "/admin-dashboard/moderation", icon: ShieldAlert },
+          { name: "All Gears", href: "/admin-dashboard/gear", icon: Package },
+          { name: "All Rentals", href: "/admin-dashboard/rentals", icon: ShoppingBag },
         ];
       case "PROVIDER":
       case "AUTHOR":
@@ -72,7 +72,7 @@ export default function Sidebar({ userRole = "PROVIDER" }: SidebarProps) {
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive =
-              item.href === "/provider-dashboard"
+              item.href === "/provider-dashboard" || item.href === "/admin-dashboard" || item.href === "/dashboard"
                 ? pathname === item.href
                 : pathname.startsWith(item.href);
 
