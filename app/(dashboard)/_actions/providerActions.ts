@@ -3,7 +3,7 @@
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 
-const BASE_URL = process.env.BACKEND_API_URL || "http://localhost:5000";
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:5000";
 
 const getAuthToken = async () => {
   const cookieStore = await cookies();

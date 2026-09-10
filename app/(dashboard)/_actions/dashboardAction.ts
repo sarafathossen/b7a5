@@ -11,7 +11,7 @@ const getAuthToken = async () => {
 export async function getCustomerRentals() {
   try {
     const token = await getAuthToken();
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/rentals`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/rentals`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
     });
@@ -26,7 +26,7 @@ export async function getCustomerRentals() {
 export async function createPaymentSession(rentalOrderId: string, paymentMethod: string = "SSLCommerz") {
   try {
     const token = await getAuthToken();
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/payments/create`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/payments/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +44,7 @@ export async function createPaymentSession(rentalOrderId: string, paymentMethod:
 export async function addProviderGear(data: any) {
   try {
     const token = await getAuthToken();
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/provider/gear`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/provider/gear`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -62,7 +62,7 @@ export async function addProviderGear(data: any) {
 export async function getProviderOrders() {
   try {
     const token = await getAuthToken();
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/provider/orders`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/provider/orders`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
     });
@@ -77,7 +77,7 @@ export async function getProviderOrders() {
 export async function updateOrderStatus(orderId: string, status: string) {
   try {
     const token = await getAuthToken();
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/provider/orders/${orderId}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/provider/orders/${orderId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -95,7 +95,7 @@ export async function updateOrderStatus(orderId: string, status: string) {
 export async function createCategory(data: { name: string; description: string }) {
   try {
     const token = await getAuthToken();
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/categories`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/categories`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -113,7 +113,7 @@ export async function createCategory(data: { name: string; description: string }
 export async function getAllUsers() {
   try {
     const token = await getAuthToken();
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/admin/users`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/admin/users`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
     });
@@ -128,7 +128,7 @@ export async function getAllUsers() {
 export async function toggleUserStatus(userId: string, isActive: boolean) {
   try {
     const token = await getAuthToken();
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/admin/users/${userId}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/admin/users/${userId}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

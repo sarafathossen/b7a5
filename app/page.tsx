@@ -2,7 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import LogoutButton from "@/components/LogoutButton";
 
-const BASE_URL = process.env.BACKEND_API_URL || "http://localhost:5000";
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:5000";
 
 async function getPublicGears() {
   try {

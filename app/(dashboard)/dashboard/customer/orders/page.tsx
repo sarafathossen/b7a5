@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import Link from "next/link";
 
-const BASE_URL = process.env.BACKEND_API_URL || "http://localhost:5000";
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:5000";
 
 async function getCustomerOrders(token: string) {
   try {

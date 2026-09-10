@@ -17,7 +17,7 @@ export async function getAllGears(searchParams?: {
     if (searchParams?.search) params.append("search", searchParams.search);
 
     const res = await fetch(
-      `${process.env.BACKEND_API_URL}/api/gear?${params.toString()}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/gear?${params.toString()}`,
       { cache: "no-store" }
     );
 
@@ -33,7 +33,7 @@ export async function getAllGears(searchParams?: {
 // ২. সিঙ্গেল গিয়ার ডিটেইলস (GET /api/gear/:id)
 export async function getSingleGear(id: string) {
   try {
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/gear/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/gear/${id}`, {
       cache: "no-store",
     });
 
@@ -61,7 +61,7 @@ export async function createRentalOrder(payload: {
       return { success: false, message: "Please login to rent gear." };
     }
 
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/rentals`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/rentals`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -95,7 +95,7 @@ export async function createReview(payload: {
       return { success: false, message: "Authentication required." };
     }
 
-    const res = await fetch(`${process.env.BACKEND_API_URL}/api/reviews`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/reviews`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
