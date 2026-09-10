@@ -18,7 +18,7 @@ export default function AdminRentalsPage() {
     loadData();
   }, []);
 
-  // Helper function to safely render customer identifier
+  
   const renderCustomer = (customer: any) => {
     if (!customer) return "N/A";
     if (typeof customer === "object") {
@@ -27,7 +27,7 @@ export default function AdminRentalsPage() {
     return customer;
   };
 
-  // Helper function to safely render gear identifier
+  
   const renderGear = (gear: any) => {
     if (!gear) return "N/A";
     if (typeof gear === "object") {
