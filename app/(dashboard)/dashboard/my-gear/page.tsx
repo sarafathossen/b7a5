@@ -133,7 +133,7 @@ export default function MyGearRentalsPage() {
                       </span>
                     </td>
                     
-                    {/* View Column */}
+                    
                     <td className="p-4">
                       <button
                         onClick={() => handleViewDetails(id)}
@@ -143,7 +143,7 @@ export default function MyGearRentalsPage() {
                       </button>
                     </td>
 
-                    {/* Payment Column */}
+                    
                     <td className="p-4">
                       {!isPaid ? (
                         <button
@@ -159,7 +159,7 @@ export default function MyGearRentalsPage() {
                       )}
                     </td>
 
-                    {/* Review Column */}
+                    
                     <td className="p-4 text-right">
                       <button
                         onClick={() => {
@@ -182,7 +182,7 @@ export default function MyGearRentalsPage() {
         </div>
       )}
 
-      {/* Order Details Modal */}
+      
       {selectedOrder && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-card p-6 rounded-xl w-full max-w-md border shadow-lg space-y-4">
@@ -207,7 +207,7 @@ export default function MyGearRentalsPage() {
         </div>
       )}
 
-      {/* Review Modal */}
+      
       {selectedGearId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-card border p-6 rounded-xl w-full max-w-md space-y-4 shadow-lg">
