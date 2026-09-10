@@ -16,14 +16,14 @@ export default function LoginForm() {
     if (state?.success) {
       toast.success(state.message || "Login successful!");
 
-      // LocalStorage-এ ইউজার অবজেক্ট ও রোল সেভ করা
+      
       if (state.data?.user) {
         localStorage.setItem("user", JSON.stringify(state.data.user));
       } else if (state.role) {
         localStorage.setItem("user", JSON.stringify({ role: state.role }));
       }
 
-      // Role অনুযায়ী ডায়নামিক রিডাইরেক্ট
+      
       const role = state.role?.toUpperCase();
       if (role === "ADMIN") {
         router.push("/admin-dashboard");
