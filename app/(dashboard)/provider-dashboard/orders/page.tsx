@@ -61,13 +61,17 @@ export default function IncomingOrdersPage() {
               {orders.map((order) => (
                 <tr key={order._id || order.id} className="hover:bg-accent/20">
                   <td className="p-4 font-mono text-xs">{order._id || order.id}</td>
-                  <td className="p-4 font-mono text-xs">{order.gearId || order.gear?._id || "N/A"}</td>
+                  <td className="p-4 font-mono text-xs">
+                    {order.gearId || order.gear?.id || order.gear?._id || "N/A"}
+                  </td>
                   <td className="p-4 font-medium">
                     {typeof order.customer === "object" && order.customer !== null
                       ? order.customer.name || order.customer.email || "N/A"
                       : order.customer || "N/A"}
                   </td>
-                  <td className="p-4 font-semibold">${order.totalAmount || order.amount || 0}</td>
+                  <td className="p-4 font-semibold">
+                    ${order.totalAmount || order.amount || order.totalPrice || order.price || 0}
+                  </td>
                   <td className="p-4">
                     <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-accent">
                       {order.status}

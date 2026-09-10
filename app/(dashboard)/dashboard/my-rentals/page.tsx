@@ -250,7 +250,7 @@ export default function MyGearRentalsPage() {
         </div>
       )}
 
-      {/* Review Modal */}
+       
       {selectedGearId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-card border p-6 rounded-xl w-full max-w-md space-y-4 shadow-lg">

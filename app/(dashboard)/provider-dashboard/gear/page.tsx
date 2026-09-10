@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus, Edit, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { getProviderGearsAction, updateGearAction, deleteGearAction } from "../action";
 
 export default function ProviderInventoryPage() {
@@ -14,7 +15,10 @@ export default function ProviderInventoryPage() {
     setLoading(true);
     const res = await getProviderGearsAction();
     if (res.success) {
-      setGears(res.data);
+      // ডেটাবেজ থেকে আসা ডেটা শুধুমাত্র নিজস্ব প্রোভাইডারের কি না তা নিশ্চিত করতে সরাসরি সেট করা হচ্ছে
+      setGears(res.data || []);
+    } else {
+      toast.error(res.message || "Failed to load inventory.");
     }
     setLoading(false);
   };
@@ -27,10 +31,10 @@ export default function ProviderInventoryPage() {
     if (confirm("Are you sure you want to remove this gear?")) {
       const res = await deleteGearAction(id);
       if (res.success) {
-        alert("Gear removed from inventory successfully!");
+        toast.success("Gear removed from inventory successfully!");
         fetchGears();
       } else {
-        alert(res.message);
+        toast.error(res.message || "Failed to delete gear.");
       }
     }
   };
@@ -39,18 +43,19 @@ export default function ProviderInventoryPage() {
     e.preventDefault();
     if (!editingGear) return;
 
-    const gearId = editingGear._id || editingGear.id;
+    // Prisma এর ক্ষেত্রে id-কে আগে প্রাধান্য দেওয়া হয়েছে
+    const gearId = editingGear.id || editingGear._id;
     const res = await updateGearAction(gearId, {
       pricePerDay: Number(editingGear.pricePerDay),
       stock: Number(editingGear.stock),
     });
 
     if (res.success) {
-      alert("Gear updated successfully!");
+      toast.success("Gear updated successfully!");
       setEditingGear(null);
       fetchGears();
     } else {
-      alert(res.message);
+      toast.error(res.message || "Failed to update gear.");
     }
   };
 
@@ -89,30 +94,35 @@ export default function ProviderInventoryPage() {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {gears.map((item) => (
-                <tr key={item._id || item.id} className="hover:bg-accent/20">
-                  <td className="p-4 font-medium">{item.name}</td>
-                  <td className="p-4">{item.brand}</td>
-                  <td className="p-4 font-semibold">${item.pricePerDay}</td>
-                  <td className="p-4">{item.stock}</td>
-                  <td className="p-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => setEditingGear(item)}
-                        className="p-2 hover:bg-accent rounded-lg text-muted-foreground hover:text-foreground"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item._id || item.id)}
-                        className="p-2 hover:bg-destructive/10 rounded-lg text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {gears.map((item) => {
+                // গিয়ার আইটেমের আইডি ফিল্টার করা (Prisma - id)
+                const targetId = item.id || item._id;
+
+                return (
+                  <tr key={targetId} className="hover:bg-accent/20">
+                    <td className="p-4 font-medium">{item.name}</td>
+                    <td className="p-4">{item.brand}</td>
+                    <td className="p-4 font-semibold">${item.pricePerDay}</td>
+                    <td className="p-4">{item.stock}</td>
+                    <td className="p-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => setEditingGear(item)}
+                          className="p-2 hover:bg-accent rounded-lg text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(targetId)}
+                          className="p-2 hover:bg-destructive/10 rounded-lg text-destructive transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -148,11 +158,11 @@ export default function ProviderInventoryPage() {
                 <button
                   type="button"
                   onClick={() => setEditingGear(null)}
-                  className="px-4 py-2 border rounded-lg text-sm"
+                  className="px-4 py-2 border rounded-lg text-sm hover:bg-accent transition-colors"
                 >
                   Cancel
                 </button>
-                <button type="submit" className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm">
+                <button type="submit" className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:opacity-90 transition-opacity">
                   Save Changes
                 </button>
               </div>

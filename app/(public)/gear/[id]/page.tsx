@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getSingleGear, createRentalOrder } from "../../_actions/gearAction";
 import navbar from "../_components/navbar";
+import Link from "next/link";
 
 export default function GearDetailsPage({
   params,
@@ -42,6 +43,12 @@ export default function GearDetailsPage({
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h2 className="text-xl font-bold">Gear not found!</h2>
+        <Link
+          href="/"
+          className="inline-block mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
+        >
+          Back Home
+        </Link>
       </div>
     );
   }
@@ -83,7 +90,7 @@ export default function GearDetailsPage({
     setSubmitting(false);
 
     if (res.success) {
-      // ✅ সফলভাবে রেন্ট হওয়ার পর সরাসরি এই লিঙ্কে রিডাইরেক্ট হবে
+      // ✅ সফলভাবে রেন্ট হওয়ার পর সরাসরি এই লিঙ্কে রিডাইরেক্ট হবে
       router.push("/dashboard/my-gear");
     } else {
       setErrorMessage(res.message);
@@ -92,7 +99,16 @@ export default function GearDetailsPage({
 
   return (
     <div className="container mx-auto px-4 py-8">
-        
+      {/* ব্যাক হোম বাটন */}
+      <div className="mb-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium border rounded-xl hover:bg-muted transition-colors"
+        >
+          ← Back Home
+        </Link>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-card border rounded-2xl p-6 shadow-sm">
         
         <div className="relative h-96 w-full rounded-xl overflow-hidden bg-muted">
@@ -155,7 +171,7 @@ export default function GearDetailsPage({
             <button
               onClick={handleRent}
               disabled={!gear.isAvailable || submitting}
-              className="w-full py-3 bg-primary text-primary-foreground font-medium rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity"
+              className="w-full py-3 bg-primary text-primary-foreground font-medium rounded-xl hover:opacity-90 disabled:opacity-50 transition-opacity cursor-pointer"
             >
               {submitting
                 ? "Processing..."

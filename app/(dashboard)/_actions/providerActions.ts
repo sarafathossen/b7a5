@@ -15,12 +15,12 @@ export async function createProviderGear(formData: FormData) {
   try {
     const token = await getAuthToken();
 
-    
+    // এখানে 'category'-র পরিবর্তে 'categoryId' করা হয়েছে, যা আপনার ব্যাকএন্ডের সাথে হুবহু মিলবে
     const gearData = {
       name: formData.get("name")?.toString() || "",
       description: formData.get("description")?.toString() || "",
       pricePerDay: Number(formData.get("pricePerDay")),
-      category: formData.get("category")?.toString() || "",
+      categoryId: formData.get("categoryId")?.toString() || formData.get("category")?.toString() || "",
       brand: formData.get("brand")?.toString() || "",
       stock: Number(formData.get("stock")),
     };
