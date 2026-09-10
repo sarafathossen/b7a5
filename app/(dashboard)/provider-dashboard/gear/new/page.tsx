@@ -21,7 +21,7 @@ export default function AddGearPage() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const res = await fetch("http://localhost:5000/api/categories"); // আপনার ব্যাকএন্ডের ক্যাটাগরি এপিআই রুট
+        const res = await fetch("https://gearup-backend-five.vercel.app/api/categories"); // আপনার ব্যাকএন্ডের ক্যাটাগরি এপিআই রুট
         const data = await res.json();
         if (data && Array.isArray(data)) {
           setCategories(data);

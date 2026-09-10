@@ -9,7 +9,7 @@ export default function Header({ isLoggedIn }: { isLoggedIn: boolean }) {
   const handleLogout = async () => {
     try {
       // ব্যাকএন্ডের লগআউট এপিআই কল (যদি কুকি ক্লিয়ার করার কোড ব্যাকএন্ডে থাকে)
-      await fetch("http://localhost:5000/api/auth/logout", {
+      await fetch("https://gearup-backend-five.vercel.app/api/auth/logout", {
         method: "POST",
         credentials: "include",
       });

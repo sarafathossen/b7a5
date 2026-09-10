@@ -43,7 +43,7 @@ export default function MyGearRentalsPage() {
       // ব্যাকএন্ডের পেমেন্ট ভেরিফাই এবং সেভ করার রাউট কল করা
       const verifyAndSavePayment = async () => {
         try {
-          const response = await fetch("http://localhost:5000/api/payment/verify", { // আপনার ব্যাকএন্ড পোর্ট ও রুট অনুযায়ী লিংক দিন
+          const response = await fetch("https://gearup-backend-five.vercel.app/api/payment/verify", { // আপনার ব্যাকএন্ড পোর্ট ও রুট অনুযায়ী লিংক দিন
             method: "POST",
             headers: {
               "Content-Type": "application/json",
