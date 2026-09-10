@@ -46,10 +46,10 @@ const RegisterForm: React.FC = () => {
     <Card className="w-full">
       <CardContent className="pt-6">
         <form action={action} className="space-y-4">
-          {/* Default Role Value as Hidden Input */}
+          
           <input type="hidden" name="role" value="CUSTOMER" />
 
-          {/* Full Name */}
+          
           <div className="space-y-1.5">
             <Label htmlFor="name">Full Name</Label>
             <Input
@@ -70,7 +70,7 @@ const RegisterForm: React.FC = () => {
             )}
           </div>
 
-          {/* Email */}
+          
           <div className="space-y-1.5">
             <Label htmlFor="email">Email Address</Label>
             <Input
@@ -91,7 +91,7 @@ const RegisterForm: React.FC = () => {
             )}
           </div>
 
-          {/* Password */}
+          
           <div className="space-y-1.5">
             <Label htmlFor="password">Password</Label>
             <Input
@@ -112,7 +112,7 @@ const RegisterForm: React.FC = () => {
             )}
           </div>
 
-          {/* Submit Button */}
+          
           <Button type="submit" disabled={pending} className="w-full mt-2">
             {pending ? "Creating Account..." : "Register"}
           </Button>
