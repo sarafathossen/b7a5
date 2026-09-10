@@ -53,7 +53,7 @@ export default async function HomePage() {
               Explore Gears
             </Link>
             {isLoggedIn && (
-              <Link href="/provider-dashboard/gear" className="hover:text-indigo-600 transition-colors">
+              <Link href="/dashboard" className="hover:text-indigo-600 transition-colors">
                 Dashboard
               </Link>
             )}

@@ -13,7 +13,7 @@ interface DecodedToken {
     [key: string]: any;
 }
 
-// ==================== LOGIN ACTION ===================
+
 export type LoginState = {
     success: boolean;
     statusCode?: number;
@@ -61,7 +61,7 @@ export const loginAction = async (
 
         let extractedRole: string | undefined = undefined;
 
-        // ১. প্রথমে টোকেন ডিকোড করে রোল বের করার চেষ্টা করা
+        
         if (token) {
             try {
                 const decoded = jwtDecode<DecodedToken>(token);
@@ -72,7 +72,7 @@ export const loginAction = async (
             }
         }
 
-        // ২. যদি টোকেনে না থাকে তবে রেসপন্স অবজেক্ট থেকে নেওয়া
+        
         if (!extractedRole) {
             extractedRole =
                 result?.data?.user?.role ||
@@ -132,7 +132,7 @@ export const loginAction = async (
     }
 };
 
-// ==================== REGISTER ACTION ====================
+
 export type RegisterState = {
     success: boolean;
     message: string;
@@ -195,7 +195,7 @@ export const registerAction = async (
     }
 };
 
-// ==================== LOGOUT ACTION ====================
+
 export const logoutAction = async () => {
     const cookieStore = await cookies();
 
