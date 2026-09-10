@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAllUsersAction, updateUserStatusAction } from "../action";
+import { getAllUsersAction, updateUserStatusAction, updateUserRoleAction } from "../action"; // updateUserRoleAction আপনার অ্যাকশন ফাইলে থাকতে হবে
 import { ShieldAlert, ShieldCheck } from "lucide-react";
+import { toast } from "sonner"; // যদি react-hot-toast ব্যবহার করেন তবে সেভাবে ইমপোর্ট করবেন
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -22,25 +23,33 @@ export default function AdminUsersPage() {
   }, []);
 
   const handleToggleBlock = async (userObj: any) => {
-    // MongoDB/Prisma আইডি সঠিকভাবে ফিল্টার করা
     const userId = userObj.id || userObj._id;
 
     if (!userId) {
-      alert("Invalid User ID");
+      toast.error("Invalid User ID");
       return;
     }
 
-    // status Enum বা isBlocked বুলিয়ান থেকে বর্তমান স্টেট বের করা
     const isCurrentlySuspended = userObj.status === "SUSPENDED" || Boolean(userObj.isBlocked);
-    
-    // বর্তমান স্টেট স্থগিত থাকলে টগল করে false (Activate) পাঠাবে, অন্যথায় true (Suspend) পাঠাবে
     const res = await updateUserStatusAction(userId, !isCurrentlySuspended);
 
     if (res.success) {
-      alert(res.message);
+      toast.success(res.message || "User status updated successfully");
       fetchUsers();
     } else {
-      alert(res.message);
+      toast.error(res.message || "Failed to update status");
+    }
+  };
+
+  // ইউজার রোল পরিবর্তনের হ্যান্ডলার
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    const res = await updateUserRoleAction(userId, newRole);
+
+    if (res.success) {
+      toast.success(res.message || "User role updated successfully");
+      fetchUsers();
+    } else {
+      toast.error(res.message || "Failed to update user role");
     }
   };
 
@@ -48,7 +57,7 @@ export default function AdminUsersPage() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
-        <p className="text-sm text-muted-foreground">Manage customer and provider accounts status.</p>
+        <p className="text-sm text-muted-foreground">Manage user accounts, status, and system roles.</p>
       </div>
 
       {loading ? (
@@ -59,28 +68,41 @@ export default function AdminUsersPage() {
             <thead className="bg-accent/50 border-b text-muted-foreground">
               <tr>
                 <th className="p-4">User ID</th>
-                <th className="p-4">Email</th>
+                <th className="p-4">Email / Name</th>
                 <th className="p-4">Role</th>
                 <th className="p-4">Status</th>
-                <th className="p-4 text-right">Action</th>
+                <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {users.map((u) => {
                 const userId = u.id || u._id;
-                // ইউজার সাসপেন্ড আছে কিনা তা নিশ্চিত করা
                 const isSuspended = u.status === "SUSPENDED" || Boolean(u.isBlocked);
 
                 return (
                   <tr key={userId} className="hover:bg-accent/20">
                     <td className="p-4 font-mono text-xs">{userId}</td>
                     <td className="p-4 font-medium">{u.email || u.name || "N/A"}</td>
-                    <td className="p-4 uppercase text-xs font-semibold">{u.role || "CUSTOMER"}</td>
+                    
+                    {/* রোল পরিবর্তনের জন্য ড্রপডাউন */}
+                    <td className="p-4">
+                      <select
+                        value={u.role || "CUSTOMER"}
+                        onChange={(e) => handleRoleChange(userId, e.target.value)}
+                        className="p-1.5 border rounded-lg text-xs bg-background cursor-pointer font-semibold uppercase"
+                      >
+                        <option value="CUSTOMER">CUSTOMER</option>
+                        <option value="PROVIDER">PROVIDER</option>
+                        <option value="ADMIN">ADMIN</option>
+                      </select>
+                    </td>
+
                     <td className="p-4">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${isSuspended ? "bg-red-500/10 text-red-500" : "bg-emerald-500/10 text-emerald-500"}`}>
                         {isSuspended ? "Suspended" : "Active"}
                       </span>
                     </td>
+
                     <td className="p-4 text-right">
                       <button
                         onClick={() => handleToggleBlock(u)}

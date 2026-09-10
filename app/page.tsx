@@ -118,42 +118,54 @@ export default async function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {gears.map((item: any) => (
-                <div
-                  key={item._id || item.id}
-                  className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
-                >
-                  <div className="p-5">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-full">
-                        {item.brand || "Outdoor"}
-                      </span>
-                      <span className="text-xs text-slate-400">Stock: {item.stock ?? 0}</span>
+              {gears.map((item: any) => {
+                const itemId = item._id || item.id;
+                return (
+                  <div
+                    key={itemId}
+                    className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
+                  >
+                    <div className="p-5">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-full">
+                          {item.brand || "Outdoor"}
+                        </span>
+                        <span className="text-xs text-slate-400">Stock: {item.stock ?? 0}</span>
+                      </div>
+
+                      <h3 className="font-semibold text-slate-900 text-lg mb-1 line-clamp-1">
+                        {item.name}
+                      </h3>
+                      <p className="text-sm text-slate-500 line-clamp-2 mb-4">
+                        {item.description || "No description provided."}
+                      </p>
                     </div>
 
-                    <h3 className="font-semibold text-slate-900 text-lg mb-1 line-clamp-1">
-                      {item.name}
-                    </h3>
-                    <p className="text-sm text-slate-500 line-clamp-2 mb-4">
-                      {item.description || "No description provided."}
-                    </p>
-                  </div>
+                    <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex flex-col gap-3 mt-auto">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-lg font-bold text-slate-900">${item.pricePerDay}</span>
+                          <span className="text-xs text-slate-500"> / day</span>
+                        </div>
 
-                  <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between mt-auto">
-                    <div>
-                      <span className="text-lg font-bold text-slate-900">${item.pricePerDay}</span>
-                      <span className="text-xs text-slate-500"> / day</span>
+                        <Link
+                          href={`/gear/${itemId}`}
+                          className="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+                        >
+                          View Details &rarr;
+                        </Link>
+                      </div>
+
+                      <Link
+                        href={`/gear/${itemId}`}
+                        className="w-full py-2 text-center text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+                      >
+                        Rent Now
+                      </Link>
                     </div>
-
-                    <Link
-                      href={`/gear/${item._id || item.id}`}
-                      className="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
-                    >
-                      View Details &rarr;
-                    </Link>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </section>

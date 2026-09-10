@@ -4,6 +4,7 @@ import { useEffect, useState, use } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getSingleGear, createRentalOrder } from "../../_actions/gearAction";
+import navbar from "../_components/navbar";
 
 export default function GearDetailsPage({
   params,
@@ -73,7 +74,7 @@ export default function GearDetailsPage({
     setSubmitting(true);
 
     const res = await createRentalOrder({
-      gearId: gear._id || gear.id,
+      gearItemId: gear._id || gear.id, 
       startDate,
       endDate,
       totalPrice,
@@ -82,7 +83,8 @@ export default function GearDetailsPage({
     setSubmitting(false);
 
     if (res.success) {
-      router.push("/dashboard/customer/orders");
+      // ✅ সফলভাবে রেন্ট হওয়ার পর সরাসরি এই লিঙ্কে রিডাইরেক্ট হবে
+      router.push("/dashboard/my-gear");
     } else {
       setErrorMessage(res.message);
     }
@@ -90,7 +92,9 @@ export default function GearDetailsPage({
 
   return (
     <div className="container mx-auto px-4 py-8">
+        
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-card border rounded-2xl p-6 shadow-sm">
+        
         <div className="relative h-96 w-full rounded-xl overflow-hidden bg-muted">
           <Image
             src={gear.image || "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4"}

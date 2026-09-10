@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getProviderOrdersAction, updateOrderStatusAction } from "../action";
+import { toast } from "sonner";
 
 export default function IncomingOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -23,10 +24,10 @@ export default function IncomingOrdersPage() {
   const handleStatusChange = async (orderId: string, status: string) => {
     const res = await updateOrderStatusAction(orderId, status);
     if (res.success) {
-      alert("Order status updated");
+      toast.success("Order status updated successfully");
       fetchOrders();
     } else {
-      alert(res.message);
+      toast.error(res.message || "Failed to update status");
     }
   };
 
@@ -51,16 +52,22 @@ export default function IncomingOrdersPage() {
                 <th className="p-4">Order ID</th>
                 <th className="p-4">Gear ID</th>
                 <th className="p-4">Customer</th>
+                <th className="p-4">Total Amount</th>
                 <th className="p-4">Status</th>
-                <th className="p-4 text-right">Update Status</th>
+                <th className="p-4 text-right">Action / Update Flow</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {orders.map((order) => (
                 <tr key={order._id || order.id} className="hover:bg-accent/20">
                   <td className="p-4 font-mono text-xs">{order._id || order.id}</td>
-                  <td className="p-4 font-mono text-xs">{order.gearId || order.gear?._id}</td>
-                  <td className="p-4 font-medium">{order.customer?.name || order.customer}</td>
+                  <td className="p-4 font-mono text-xs">{order.gearId || order.gear?._id || "N/A"}</td>
+                  <td className="p-4 font-medium">
+                    {typeof order.customer === "object" && order.customer !== null
+                      ? order.customer.name || order.customer.email || "N/A"
+                      : order.customer || "N/A"}
+                  </td>
+                  <td className="p-4 font-semibold">${order.totalAmount || order.amount || 0}</td>
                   <td className="p-4">
                     <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-accent">
                       {order.status}

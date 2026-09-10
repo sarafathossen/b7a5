@@ -57,6 +57,34 @@ export async function updateUserStatusAction(userId: string, isBlocked: boolean)
   }
 }
 
+// ৭.৫ Update User Role (ADMIN, CUSTOMER, PROVIDER) (PATCH /api/admin/users/:id)
+export async function updateUserRoleAction(userId: string, newRole: string) {
+  try {
+    const token = await getToken();
+    if (!token) return { success: false, message: "Unauthorized" };
+
+    const res = await fetch(`${BASE_URL}/api/admin/users/${userId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        role: newRole,
+      }),
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      revalidatePath("/admin-dashboard/users");
+      return { success: true, message: data.message || "User role updated successfully" };
+    }
+    return { success: false, message: data.message || "Failed to update user role" };
+  } catch (error) {
+    return { success: false, message: "Server error" };
+  }
+}
+
 // ৭.৩ Get All Gear Listings (GET /api/admin/gear)
 export async function getAllAdminGearsAction() {
   try {
