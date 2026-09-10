@@ -10,12 +10,12 @@ const getAuthToken = async () => {
   return cookieStore.get("token")?.value;
 };
 
-// ১. নতুন Gear যোগ করার অ্যাকশন
+
 export async function createProviderGear(formData: FormData) {
   try {
     const token = await getAuthToken();
 
-    // এপিআই ডকুমেন্টেশন অনুযায়ী হুবহু JSON পে-লোড
+    
     const gearData = {
       name: formData.get("name")?.toString() || "",
       description: formData.get("description")?.toString() || "",
@@ -50,7 +50,7 @@ export async function createProviderGear(formData: FormData) {
   }
 }
 
-// ২. সকল Gear ফেচ করার অ্যাকশন (বিল্ড এরর সমাধানের জন্য যোগ করা হয়েছে)
+
 export async function getProviderGears() {
   try {
     const token = await getAuthToken();
