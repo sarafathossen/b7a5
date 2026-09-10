@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAllUsersAction, updateUserStatusAction, updateUserRoleAction } from "../action"; // updateUserRoleAction আপনার অ্যাকশন ফাইলে থাকতে হবে
+import { getAllUsersAction, updateUserStatusAction, updateUserRoleAction } from "../action"; 
 import { ShieldAlert, ShieldCheck } from "lucide-react";
-import { toast } from "sonner"; // যদি react-hot-toast ব্যবহার করেন তবে সেভাবে ইমপোর্ট করবেন
+import { toast } from "sonner"; 
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -41,7 +41,7 @@ export default function AdminUsersPage() {
     }
   };
 
-  // ইউজার রোল পরিবর্তনের হ্যান্ডলার
+  
   const handleRoleChange = async (userId: string, newRole: string) => {
     const res = await updateUserRoleAction(userId, newRole);
 
@@ -84,7 +84,7 @@ export default function AdminUsersPage() {
                     <td className="p-4 font-mono text-xs">{userId}</td>
                     <td className="p-4 font-medium">{u.email || u.name || "N/A"}</td>
                     
-                    {/* রোল পরিবর্তনের জন্য ড্রপডাউন */}
+                    
                     <td className="p-4">
                       <select
                         value={u.role || "CUSTOMER"}
