@@ -7,9 +7,7 @@ const getAuthToken = async () => {
   return cookieStore.get("token")?.value;
 };
 
-// ================= CUSTOMER API ACTIONS =================
 
-// কাস্টমারের নিজের রেন্টাল অর্ডার লিস্ট (GET /api/rentals)
 export async function getCustomerRentals() {
   try {
     const token = await getAuthToken();
@@ -24,7 +22,7 @@ export async function getCustomerRentals() {
   }
 }
 
-// কাস্টমার পেমেন্ট শুরু করা (POST /api/payments/create)
+
 export async function createPaymentSession(rentalOrderId: string, paymentMethod: string = "SSLCommerz") {
   try {
     const token = await getAuthToken();
@@ -42,9 +40,7 @@ export async function createPaymentSession(rentalOrderId: string, paymentMethod:
   }
 }
 
-// ================= PROVIDER API ACTIONS =================
 
-// প্রোভাইডারের নতুন গিয়ার যোগ করা (POST /api/provider/gear)
 export async function addProviderGear(data: any) {
   try {
     const token = await getAuthToken();
@@ -62,7 +58,7 @@ export async function addProviderGear(data: any) {
   }
 }
 
-// প্রোভাইডারের কাছে আসা অর্ডার লিস্ট (GET /api/provider/orders)
+
 export async function getProviderOrders() {
   try {
     const token = await getAuthToken();
@@ -77,8 +73,7 @@ export async function getProviderOrders() {
   }
 }
 
-// প্রোভাইডার অর্ডার স্ট্যাটাস পরিবর্তন (PATCH /api/provider/orders/:id)
-// Flow: PLACED -> CONFIRMED -> PICKED_UP -> RETURNED
+
 export async function updateOrderStatus(orderId: string, status: string) {
   try {
     const token = await getAuthToken();
@@ -96,9 +91,7 @@ export async function updateOrderStatus(orderId: string, status: string) {
   }
 }
 
-// ================= ADMIN API ACTIONS =================
 
-// এডমিনের ক্যাটাগরি তৈরি করা (POST /api/categories)
 export async function createCategory(data: { name: string; description: string }) {
   try {
     const token = await getAuthToken();
@@ -116,7 +109,7 @@ export async function createCategory(data: { name: string; description: string }
   }
 }
 
-// এডমিনের সকল ইউজার দেখা (GET /api/admin/users)
+
 export async function getAllUsers() {
   try {
     const token = await getAuthToken();
@@ -131,7 +124,7 @@ export async function getAllUsers() {
   }
 }
 
-// ইউজার ব্লক/আনব্লক করা (PATCH /api/admin/users/:id)
+
 export async function toggleUserStatus(userId: string, isActive: boolean) {
   try {
     const token = await getAuthToken();
